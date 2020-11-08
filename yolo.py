@@ -1,7 +1,7 @@
 import cv2
 import numpy as np 
 import requests
-
+import json
 
 
 
@@ -74,17 +74,23 @@ def get_box_dimensions(outputs, height, width):
 def draw_labels(boxes, confs, colors, class_ids, classes, img): 
     indexes = cv2.dnn.NMSBoxes(boxes, confs, 0.5, 0.4)
     font = cv2.FONT_HERSHEY_PLAIN
+    data = {}	
     for i in range(len(boxes)):
         if i in indexes:
             x, y, w, h = boxes[i]
             label = str(classes[class_ids[i]])
+	    data[label] = []	
             color = colors[i] 
             center = (round(x + (w / 2)), round(y + (h / 2)))
+	    data[label].append({
+                    'Position': str(center),
+                    })
             cv2.rectangle(img, (x,y), (x+w, y+h), color, 2)
             cv2.circle(img, center, 5, (0, 0, 255), 5)
             cv2.putText(img, label, (x, y - 5), font, 1, color, 1)
             cv2.imshow("Image", img)
-
+            with open('data.txt', 'w') as outfile:
+                json.dump(data, outfile)
 
 
 def image_detect_cam(url,path):
